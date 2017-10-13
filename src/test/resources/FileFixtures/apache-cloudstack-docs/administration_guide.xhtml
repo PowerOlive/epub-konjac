@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">
+  <head>
+    <meta charset="utf-8" />
+    <title>Apache CloudStack Administration Guide</title>
+    <link rel="stylesheet" href="_static/epub.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" /> 
+  </head>
+  <body>
+
+    <div class="document">
+      <div class="documentwrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="apache-cloudstack-administration-guide">
+<h1>Apache CloudStack Administration Guide</h1>
+<div class="section" id="backups">
+<h2>Backups</h2>
+</div>
+<div class="section" id="monitoring">
+<h2>Monitoring</h2>
+</div>
+<div class="section" id="snmp">
+<h2>SNMP</h2>
+<p>CloudStack will send alerts for a number of</p>
+</div>
+<div class="section" id="syslog">
+<h2>Syslog</h2>
+</div>
+<div class="section" id="amqp">
+<h2>AMQP</h2>
+</div>
+<div class="section" id="jmx">
+<h2>JMX</h2>
+</div>
+<div class="section" id="api-queries">
+<h2>API Queries</h2>
+</div>
+<div class="section" id="usage">
+<h2>Usage</h2>
+</div>
+<div class="section" id="tuning">
+<h2>Tuning</h2>
+</div>
+<div class="section" id="configuration-parameters">
+<h2>Configuration Parameters</h2>
+</div>
+<div class="section" id="system-reliability-and-availability">
+<h2>System Reliability and Availability</h2>
+</div>
+<div class="section" id="ha-for-management-server">
+<h2>HA for Management Server</h2>
+<p>The CloudStack Management Server should be deployed in a multi-node
+configuration such that it is not susceptible to individual server failures.
+The Management Server itself (as distinct from the MySQL database) is
+stateless and may be placed behind a load balancer.</p>
+<p>Normal operation of Hosts is not impacted by an outage of all Management
+Serves. All guest VMs will continue to work.</p>
+<p>When the Management Server is down, no new VMs can be created, and the end
+user and admin UI, API, dynamic load distribution, and HA will cease to work.</p>
+</div>
+<div class="section" id="management-server-load-balancing">
+<h2>Management Server Load Balancing</h2>
+<p>CloudStack can use a load balancer to provide a virtual IP for multiple
+Management Servers. The administrator is responsible for creating the load
+balancer rules for the Management Servers. The application requires
+persistence or stickiness across multiple sessions. The following chart lists
+the ports that should be load balanced and whether or not persistence is
+required.</p>
+<table class="table-striped table-bordered table-hover docutils">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 33%" />
+<col style="width: 19%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Source port</p></th>
+<th class="head"><p>Destination port</p></th>
+<th class="head"><p>Protocol</p></th>
+<th class="head"><p>Persistence Required?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>80 or 443</p></td>
+<td><p>8080 (or 20400 with AJP)</p></td>
+<td><p>HTTP (or AJP)</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>8250</p></td>
+<td><p>8250</p></td>
+<td><p>TCP</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+<p>In addition to above settings, the administrator is responsible for setting
+the ‘host’ global config value from the management server IP to load balancer
+virtual IP address. If the ‘host’ value is not set to the VIP for Port 8250
+and one of your management servers crashes, the UI is still available but the
+system VMs will not be able to contact the management server.</p>
+</div>
+<div class="section" id="limiting-the-rate-of-api-requests">
+<h2>Limiting the Rate of API Requests</h2>
+<p>You can limit the rate at which API requests can be placed for each account.
+This is useful to avoid malicious attacks on the Management Server, prevent
+performance degradation, and provide fairness to all accounts.</p>
+<p>If the number of API calls exceeds the threshold, an error message is returned
+for any additional API calls. The caller will have to retry these API calls at
+another time.</p>
+<div class="section" id="configuring-the-api-request-rate">
+<h3>Configuring the API Request Rate</h3>
+<p>To control the API request rate, use the following global configuration
+settings:</p>
+<ul class="simple">
+<li><p>api.throttling.enabled - Enable/Disable API throttling. By default, this
+setting is false, so API throttling is not enabled.</p></li>
+<li><p>api.throttling.interval (in seconds) - Time interval during which the
+number of API requests is to be counted. When the interval has passed, the
+API count is reset to 0.</p></li>
+<li><p>api.throttling.max - Maximum number of APIs that can be placed within the
+api.throttling.interval period.</p></li>
+<li><p>api.throttling.cachesize - Cache size for storing API counters. Use a value
+higher than the total number of accounts managed by the cloud. One cache
+entry is needed for each account, to store the running API total for that
+account.</p></li>
+</ul>
+</div>
+<div class="section" id="limitations-on-api-throttling">
+<h3>Limitations on API Throttling</h3>
+<p>The following limitations exist in the current implementation of this feature:</p>
+<ul class="simple">
+<li><p>In a deployment with multiple Management Servers, the cache is not
+synchronized across them. In this case, CloudStack might not be able to
+ensure that only the exact desired number of API requests are allowed. In
+the worst case, the number of API calls that might be allowed is <code class="docutils literal"><span class="pre">(number</span>
+<span class="pre">of</span> <span class="pre">Management</span> <span class="pre">Servers)</span> <span class="pre">*</span> <span class="pre">(api.throttling.max)</span></code>.</p></li>
+<li><p>The API commands resetApiLimit and getApiLimit are limited to the
+Management Server where the API is invoked.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="ha-enabled-virtual-machines">
+<h2>HA-Enabled Virtual Machines</h2>
+<p>The user can specify a virtual machine as HA-enabled. By default, all virtual
+router VMs and Elastic Load Balancing VMs are automatically configured as
+HA-enabled. When an HA-enabled VM crashes, CloudStack detects the crash and
+restarts the VM automatically within the same Availability Zone. HA is never
+performed across different Availability Zones. CloudStack has a conservative
+policy towards restarting VMs and ensures that there will never be two
+instances of the same VM running at the same time. The Management Server
+attempts to start the VM on another Host in the same cluster.</p>
+<p>VM HA is not supported when the VM is using local storage.</p>
+<div class="section" id="dedicated-ha-hosts">
+<h3>Dedicated HA Hosts</h3>
+<p>One or more hosts can be designated for use only by HA-enabled VMs that are
+restarting due to a host failure. Setting up a pool of such dedicated HA hosts
+as the recovery destination for all HA-enabled VMs is useful to:</p>
+<ol class="arabic simple">
+<li><p>Make it easier to determine which VMs have been restarted as part of the
+CloudStack high-availability function. If a VM is running on a dedicated HA
+host, then it must be an HA-enabled VM whose original host failed. (With
+one exception: It is possible for an administrator to manually migrate any
+VM to a dedicated HA host.).</p></li>
+<li><p>Keep HA-enabled VMs from restarting on hosts which may be reserved for
+other purposes.</p></li>
+</ol>
+<p>The dedicated HA option is set through a special host tag when the host is
+created. To allow the administrator to dedicate hosts to only HA-enabled VMs,
+set the global configuration variable ha.tag to the desired tag (for example,
+“ha_host”), and restart the Management Server. Enter the value in the Host
+Tags field when adding the host(s) that you want to dedicate to HA-enabled VMs.</p>
+</div>
+</div>
+<div class="section" id="primary-storage-outage-and-data-loss">
+<h2>Primary Storage Outage and Data Loss</h2>
+<p>When a primary storage outage occurs the hypervisor immediately stops all VMs
+stored on that storage device. Guests that are marked for HA will be restarted
+as soon as practical when the primary storage comes back on line. With NFS,
+the hypervisor may allow the virtual machines to continue running depending on
+the nature of the issue. For example, an NFS hang will cause the guest VMs to
+be suspended until storage connectivity is restored.Primary storage is not
+designed to be backed up. Individual volumes in primary storage can be backed
+up using snapshots.</p>
+</div>
+<div class="section" id="secondary-storage-outage-and-data-loss">
+<h2>Secondary Storage Outage and Data Loss</h2>
+<p>For a Zone that has only one secondary storage server, a secondary storage
+outage will have feature level impact to the system but will not impact
+running guest VMs. It may become impossible to create a VM with the selected
+template for a user. A user may also not be able to save snapshots or
+examine/restore saved snapshots. These features will automatically be
+available when the secondary storage comes back online.</p>
+<p>Secondary storage data loss will impact recently added user data including
+templates, snapshots, and ISO images. Secondary storage should be backed up
+periodically. Multiple secondary storage servers can be provisioned within
+each zone to increase the scalability of the system.</p>
+</div>
+<div class="section" id="managing-system-vms">
+<h2>Managing System VMs</h2>
+<p>CloudStack uses several types of system virtual machines to perform tasks in
+the cloud. In general CloudStack manages these system VMs and creates, starts,
+and stops them as needed based on scale and immediate needs. However, the
+administrator should be aware of them and their roles to assist in debugging
+issues.</p>
+<p>You can configure the system.vm.random.password parameter to create a random
+system VM password to ensure higher security. If you reset the value for
+system.vm.random.password to true and restart the Management Server, a random
+password is generated and stored encrypted in the database. You can view the
+decrypted password under the system.vm.password global parameter on the
+CloudStack UI or by calling the listConfigurations API.</p>
+</div>
+<div class="section" id="the-system-vm-template">
+<h2>The System VM Template</h2>
+<p>The System VMs come from a single template. The System VM has the following
+characteristics:</p>
+<ul class="simple">
+<li><p>Debian 6.0 (“Squeeze”), 2.6.32 kernel with the latest security patches from
+the Debian security APT repository</p></li>
+<li><p>Has a minimal set of packages installed thereby reducing the attack surface</p></li>
+<li><p>32-bit for enhanced performance on Xen/VMWare</p></li>
+<li><p>pvops kernel with Xen PV drivers, KVM virtio drivers, and VMware tools for
+optimum performance on all hypervisors</p></li>
+<li><p>Xen tools inclusion allows performance monitoring</p></li>
+<li><p>Latest versions of HAProxy, iptables, IPsec, and Apache from debian
+repository ensures improved security and speed</p></li>
+<li><p>Latest version of JRE from Sun/Oracle ensures improved security and speed</p></li>
+</ul>
+</div>
+<div class="section" id="accessing-system-vms">
+<h2>Accessing System VMs</h2>
+<p>It may sometimes be necessary to access System VMs for diagnostics of certain
+issues, for example if you are experiencing SSVM (Secondary Storage VM)
+connection issues. Use the steps below in order to connect to the SSH console
+of a running System VM.</p>
+<p>Accessing System VMs over the network requires the use of private keys and
+connecting to System VMs SSH Daemon on port 3922. XenServer/KVM Hypervisors
+store this key at /root/.ssh/id_rsa.cloud on each CloudStack agent. To access
+System VMs running on ESXi, the key is stored on the management server at
+/var/lib/cloudstack/management/.ssh/id_rsa.</p>
+<ol class="arabic">
+<li><p>Find the details of the System VM</p>
+<ol class="arabic simple">
+<li><p>Log in with admin privileges to the CloudStack UI.</p></li>
+<li><p>Click Infrastructure, then System VMs, and then click the name of a
+running VM.</p></li>
+<li><p>Take a note of the ‘Host’, ‘Private IP Address’ and ‘Link Local IP
+Address’ of the System VM you wish to access.</p></li>
+</ol>
+</li>
+<li><p>XenServer/KVM Hypervisors</p>
+<ol class="arabic">
+<li><p>Connect to the Host of which the System VM is running.</p></li>
+<li><p>SSH to the ‘Link Local IP Address’ of the System VM from the Host on
+which the VM is running.</p>
+<p>Format: ssh -i &lt;path-to-private-key&gt; &lt;link-local-ip&gt; -p 3922</p>
+<p>Example: <a class="reference external" href="mailto:root&#37;&#52;&#48;faith">root<span>&#64;</span>faith</a>:~# ssh -i /root/.ssh/id_rsa.cloud 169.254.3.93 -p 3922</p>
+</li>
+</ol>
+</li>
+<li><p>ESXi Hypervisors</p>
+<ol class="arabic">
+<li><p>Connect to your CloudStack Management Server.</p></li>
+<li><p>ESXi users should SSH to the private IP address of the System VM.</p>
+<p>Format: ssh -i &lt;path-to-private-key&gt; &lt;vm-private-ip&gt; -p 3922</p>
+<p>Example: <a class="reference external" href="mailto:root&#37;&#52;&#48;management">root<span>&#64;</span>management</a>:~# ssh -i /var/lib/cloudstack/management/.ssh/id_rsa 172.16.0.250 -p 3922</p>
+</li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="multiple-system-vm-support-for-vmware">
+<h2>Multiple System VM Support for VMware</h2>
+<p>Every CloudStack zone has single System VM for template processing tasks such
+as downloading templates, uploading templates, and uploading ISOs. In a zone
+where VMware is being used, additional System VMs can be launched to process
+VMware-specific tasks such as taking snapshots and creating private templates.
+The CloudStack management server launches additional System VMs for
+VMware-specific tasks as the load increases. The management server monitors
+and weights all commands sent to these System VMs and performs dynamic load
+balancing and scaling-up of more System VMs.</p>
+</div>
+<div class="section" id="console-proxy">
+<h2>Console Proxy</h2>
+<p>The Console Proxy is a type of System Virtual Machine that has a role in
+presenting a console view via the web UI. It connects the user’s browser to
+the VNC port made available via the hypervisor for the console of the guest.
+Both the administrator and end user web UIs offer a console connection.</p>
+<p>Clicking a console icon brings up a new window. The AJAX code downloaded into
+that window refers to the public IP address of a console proxy VM. There is
+exactly one public IP address allocated per console proxy VM. The AJAX
+application connects to this IP. The console proxy then proxies the connection
+to the VNC port for the requested VM on the Host hosting the guest.</p>
+<p>The console proxy VM will periodically report its active session count to the
+Management Server. The default reporting interval is five seconds. This can be
+changed through standard Management Server configuration with the parameter
+consoleproxy.loadscan.interval.</p>
+<p>Assignment of guest VM to console proxy is determined by first determining if
+the guest VM has a previous session associated with a console proxy. If it
+does, the Management Server will assign the guest VM to the target Console
+Proxy VM regardless of the load on the proxy VM. Failing that, the first
+available running Console Proxy VM that has the capacity to handle new
+sessions is used.</p>
+<p>Console proxies can be restarted by administrators but this will interrupt
+existing console sessions for users.</p>
+<div class="section" id="using-a-ssl-certificate-for-the-console-proxy">
+<h3>Using a SSL Certificate for the Console Proxy</h3>
+<p>The console viewing functionality uses a dynamic DNS service under the domain
+name realhostip.com to assist in providing SSL security to console sessions.
+The console proxy is assigned a public IP address. In order to avoid browser
+warnings for mismatched SSL certificates, the URL for the new console window
+is set to the form of <a class="reference external" href="https://aaa-bbb-ccc-ddd.realhostip.com">https://aaa-bbb-ccc-ddd.realhostip.com</a>. You will see
+this URL during console session creation. CloudStack includes the
+realhostip.com SSL certificate in the console proxy VM. Of course, CloudStack
+cannot know about the DNS A records for our customers’ public IPs prior to
+shipping the software. CloudStack therefore runs a dynamic DNS server that is
+authoritative for the realhostip.com domain. It maps the aaa-bbb-ccc-ddd part
+of the DNS name to the IP address aaa.bbb.ccc.ddd on lookups. This allows the
+browser to correctly connect to the console proxy’s public IP, where it then
+expects and receives a SSL certificate for realhostip.com, and SSL is set up
+without browser warnings.</p>
+</div>
+<div class="section" id="changing-the-console-proxy-ssl-certificate-and-domain">
+<h3>Changing the Console Proxy SSL Certificate and Domain</h3>
+<p>If the administrator prefers, it is possible for the URL of the customer’s
+console session to show a domain other than realhostip.com. The administrator
+can customize the displayed domain by selecting a different domain and
+uploading a new SSL certificate and private key. The domain must run a DNS
+service that is capable of resolving queries for addresses of the form
+aaa-bbb-ccc-ddd.your.domain to an IPv4 IP address in the form aaa.bbb.ccc.ddd,
+for example, 202.8.44.1. To change the console proxy domain, SSL certificate,
+and private key:</p>
+<ol class="arabic">
+<li><p>Set up dynamic name resolution or populate all possible DNS names in your
+public IP range into your existing DNS server with the format
+aaa-bbb-ccc-ddd.company.com -&gt; aaa.bbb.ccc.ddd.</p></li>
+<li><p>Generate the private key and certificate signing request (CSR). When you
+are using openssl to generate private/public key pairs and CSRs, for the
+private key that you are going to paste into the CloudStack UI, be sure to
+convert it into PKCS#8 format.</p>
+<ol class="arabic">
+<li><p>Generate a new 2048-bit private key</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">des3</span> <span class="o">-</span><span class="n">out</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">key</span> <span class="mi">2048</span>
+</pre></div>
+</div>
+</li>
+<li><p>Generate a new certificate CSR</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">new</span> <span class="o">-</span><span class="n">key</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">yourcertificate</span><span class="o">.</span><span class="n">csr</span>
+</pre></div>
+</div>
+</li>
+<li><p>Head to the website of your favorite trusted Certificate Authority,
+purchase an SSL certificate, and submit the CSR. You should receive a
+valid certificate in return</p></li>
+<li><p>Convert your private key format into PKCS#8 encrypted format.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">pkcs8</span> <span class="o">-</span><span class="n">topk8</span> <span class="o">-</span><span class="ow">in</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">pkcs8</span><span class="o">.</span><span class="n">encrypted</span><span class="o">.</span><span class="n">key</span>
+</pre></div>
+</div>
+</li>
+<li><p>Convert your PKCS#8 encrypted private key into the PKCS#8 format that is
+compliant with CloudStack</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">pkcs8</span> <span class="o">-</span><span class="ow">in</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">pkcs8</span><span class="o">.</span><span class="n">encrypted</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">yourprivate</span><span class="o">.</span><span class="n">pkcs8</span><span class="o">.</span><span class="n">key</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</li>
+<li><p>In the Update SSL Certificate screen of the CloudStack UI, paste the following:</p>
+<ul class="simple">
+<li><p>The certificate you’ve just generated.</p></li>
+<li><p>The private key you’ve just generated.</p></li>
+<li><p>The desired new domain name; for example, company.com</p></li>
+</ul>
+</li>
+<li><p>The desired new domain name; for example, company.com
+This stops all currently running console proxy VMs, then restarts them with
+the new certificate and key. Users might notice a brief interruption in
+console availability.</p></li>
+</ol>
+<p>The Management Server generates URLs of the form “aaa-bbb-ccc-ddd.company.com”
+after this change is made. The new console requests will be served with the
+new DNS domain name, certificate, and key.</p>
+</div>
+</div>
+<div class="section" id="virtual-router">
+<h2>Virtual Router</h2>
+<p>The virtual router is a type of System Virtual Machine. The virtual router is
+one of the most frequently used service providers in CloudStack. The end user
+has no direct access to the virtual router. Users can ping the virtual router
+and take actions that affect it (such as setting up port forwarding), but
+users do not have SSH access into the virtual router.</p>
+<p>Virtual routers can be restarted by administrators, but this will interrupt
+public network access and other services for end users. A basic test in
+debugging networking issues is to attempt to ping the virtual router from a
+guest VM. Some of the characteristics of the virtual router are determined by
+its associated system service offering..</p>
+<div class="section" id="configuring-the-virtual-router">
+<h3>Configuring the Virtual Router</h3>
+<p>You can set the following:</p>
+<ul class="simple">
+<li><p>IP range</p></li>
+<li><p>Supported network services</p></li>
+<li><p>Default domain name for the network serviced by the virtual router</p></li>
+<li><p>Gateway IP address</p></li>
+<li><p>How often CloudStack fetches network usage statistics from CloudStack
+virtual routers. If you want to collect traffic metering data from the
+virtual router, set the global configuration parameter
+router.stats.interval. If you are not using the virtual router to gather
+network usage statistics, set it to 0.</p></li>
+</ul>
+</div>
+<div class="section" id="upgrading-a-virtual-router-with-system-service-offerings">
+<h3>Upgrading a Virtual Router with System Service Offerings</h3>
+<p>When CloudStack creates a virtual router, it uses default settings which are
+defined in a default system service offering. See Section 8.2, “System Service
+Offerings”. All the virtual routers in a single guest network use the same
+system service offering. You can upgrade the capabilities of the virtual
+router by creating and applying a custom system service offering.
+Define your custom system service offering.</p>
+<p>Associate the system service offering with a network offering.
+Apply the network offering to the network where you want the virtual routers
+to use the new system service offering.</p>
+</div>
+<div class="section" id="best-practices-for-virtual-routers">
+<h3>Best Practices for Virtual Routers</h3>
+<ul class="simple">
+<li><p>Restarting a virtual router from a hypervisor console deletes all the
+iptables rules. To work around this issue, stop the virtual router and
+start it from the CloudStack UI.</p></li>
+<li><p>Do not use the destroyRouter API when only one router is available in the
+network, because restartNetwork API with the cleanup=false parameter can’t
+recreate it later. If you want to destroy and recreate the single router
+available in the network, use the restartNetwork API with the cleanup=true
+parameter.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="secondary-storage-vm">
+<h2>Secondary Storage VM</h2>
+<p>In addition to the hosts, CloudStack’s Secondary Storage VM mounts and writes
+to secondary storage. Submissions to secondary storage go through the
+Secondary Storage VM. The Secondary Storage VM can retrieve templates and ISO
+images from URLs using a variety of protocols. The secondary storage VM
+provides a background task that takes care of a variety of secondary storage
+activities: downloading a new template to a Zone, copying templates between
+Zones, and snapshot backups. The administrator can log in to the secondary
+storage VM if needed.</p>
+</div>
+<div class="section" id="storage-administration">
+<h2>Storage Administration</h2>
+</div>
+<div class="section" id="hypervisor-host-management">
+<h2>Hypervisor Host Management</h2>
+</div>
+<div class="section" id="maintenance-mode">
+<h2>Maintenance mode</h2>
+<p>Maintenance mode makes a host unavailable to have new virtual machines
+allocated to it. It also starts a process by which running virtual machines
+are live migrated to other available hosts within the same cluster. It should
+be noted that the live migration is not universally perfect, and you may end
+up with recalcitrant virtual machines which are unable to be live migrated.
+This can be due to lack of hypervisor-specific tooling or other problems.</p>
+<div class="section" id="vcenter-and-maintenance-mode">
+<h3>vCenter and Maintenance mode</h3>
+<p>To enter maintenance mode on a vCenter host, both vCenter and CloudStack must
+be used in concert. CloudStack and vCenter have separate maintenance modes
+that work closely together.</p>
+<ol class="arabic simple">
+<li><p>Place the host into CloudStack’s “scheduled maintenance” mode. This does
+not invoke the vCenter maintenance mode, but only causes VMs to be migrated
+off the host When the CloudStack maintenance mode is requested, the host
+first moves into the Prepare for Maintenance state. In this state it cannot
+be the target of new guest VM starts. Then all VMs will be migrated off the
+server. Live migration will be used to move VMs off the host. This allows
+the guests to be migrated to other hosts with no disruption to the guests.
+After this migration is completed, the host will enter the Ready for
+Maintenance mode.</p></li>
+<li><p>Wait for the “Ready for Maintenance” indicator to appear in the UI.</p></li>
+<li><p>Now use vCenter to perform whatever actions are necessary to maintain the
+host. During this time, the host cannot be the target of new VM allocations.</p></li>
+<li><p>When the maintenance tasks are complete, take the host out of maintenance
+mode as follows:</p>
+<ol class="arabic simple">
+<li><p>First use vCenter to exit the vCenter maintenance mode. This makes the
+host ready for CloudStack to reactivate it.</p></li>
+<li><p>Then use CloudStack’s administrator UI to cancel the CloudStack
+maintenance mode When the host comes back online, the VMs that were
+migrated off of it may be migrated back to it manually and new VMs can
+be added.</p></li>
+</ol>
+</li>
+</ol>
+</div>
+<div class="section" id="xenserver-maintenance-mode">
+<h3>XenServer Maintenance Mode</h3>
+<p>XenServer, you can take a server offline temporarily by using the Maintenance
+Mode feature in XenCenter. When you place a server into Maintenance Mode, all
+running VMs are automatically migrated from it to another host in the same
+pool. If the server is the pool master, a new master will also be selected for
+the pool. While a server is Maintenance Mode, you cannot create or start any
+VMs on it.</p>
+<div class="section" id="to-place-a-xenserver-host-in-maintenace-mode">
+<h4>To place a XenServer host in Maintenace Mode</h4>
+<ol class="arabic simple">
+<li><p>In the Resources pane, select the server, then do one of the following:</p>
+<ul class="simple">
+<li><p>Right-click, then click Enter Maintenance Mode on the shortcut menu.</p></li>
+<li><p>On the Server menu, click Enter Maintenance Mode.</p></li>
+</ul>
+</li>
+<li><p>Click Enter Maintenance Mode.</p></li>
+</ol>
+<p>The server’s status in the Resources pane shows when all running VMs have been
+successfully migrated off the server.</p>
+</div>
+<div class="section" id="to-take-a-xenserver-host-out-of-maintenance-mode">
+<h4>To take a Xenserver host out of Maintenance mode</h4>
+<ol class="arabic simple">
+<li><p>In the Resources pane, select the server, then do one of the following:</p>
+<ul class="simple">
+<li><p>Right-click, then click Exit Maintenance Mode on the shortcut menu.</p></li>
+<li><p>On the Server menu, click Exit Maintenance Mode.</p></li>
+</ul>
+</li>
+<li><p>Click Exit Maintenance Mode.</p></li>
+</ol>
+</div>
+</div>
+</div>
+<div class="section" id="disabling-and-enabling-zones-pods-and-clusters">
+<h2>Disabling and enabling Zones, Pods, and Clusters</h2>
+<p>You can enable or disable a zone, pod, or cluster without permanently removing
+it from the cloud. This is useful for maintenance or when there are problems
+that make a portion of the cloud infrastructure unreliable. No new allocations
+will be made to a disabled zone, pod, or cluster until its state is returned
+to Enabled. When a zone, pod, or cluster is first added to the cloud, it is
+Disabled by default.</p>
+<p>To disable and enable a zone, pod, or cluster:</p>
+<ol class="arabic simple">
+<li><p>Log in to the CloudStack UI as administrator</p></li>
+<li><p>In the left navigation bar, click Infrastructure.</p></li>
+<li><p>In Zones, click View More.</p></li>
+<li><p>If you are disabling or enabling a zone, find the name of the zone in the
+list, and click the Enable/Disable button.</p></li>
+<li><p>If you are disabling or enabling a pod or cluster, click the name of the
+zone that contains the pod or cluster.</p></li>
+<li><p>Click the Compute tab.</p></li>
+<li><p>In the Pods or Clusters node of the diagram, click View All.</p></li>
+<li><p>Click the pod or cluster name in the list.</p></li>
+<li><p>Click the Enable/Disable button.</p></li>
+</ol>
+</div>
+<div class="section" id="removing-hypervisor-hosts">
+<h2>Removing hypervisor hosts</h2>
+<p>Hosts can be removed from the cloud as needed. The procedure to remove a host
+depends on the hypervisor type.</p>
+<div class="section" id="removing-xenserver-and-kvm-hosts">
+<h3>Removing XenServer and KVM Hosts</h3>
+<p>A node cannot be removed from a cluster until it has been placed in
+maintenance mode. This will ensure that all of the VMs on it have been
+migrated to other Hosts. To remove a Host from CloudStack:</p>
+<ol class="arabic simple">
+<li><p>Place the node in maintenance mode.</p></li>
+<li><p>For KVM, stop the cloud-agent service.</p></li>
+<li><p>Use the UI option to remove the node.</p></li>
+<li><p>Then you may power down the Host, re-use its IP address, re-install it, etc</p></li>
+</ol>
+</div>
+<div class="section" id="removing-vsphere-hosts">
+<h3>Removing vSphere Hosts</h3>
+<p>To remove this type of host, first place it in maintenance mode, as described
+above. Then use CloudStack to remove the host. CloudStack will not direct
+commands to a host that has been removed using CloudStack. However, the host
+may still exist in the vCenter cluster.</p>
+</div>
+</div>
+<div class="section" id="changing-hypervisor-host-password">
+<h2>Changing hypervisor host password</h2>
+<p>The password for a XenServer Node, KVM Node, or vSphere Node may be changed in
+the database. Note that all Nodes in a Cluster must have the same password.</p>
+<p>To change a hosts password:</p>
+<ol class="arabic">
+<li><p>Identify all hosts in the cluster.</p></li>
+<li><p>Change the password on all hosts in the cluster. Now the password for the
+host and the password known to CloudStack will not match. Operations on the
+cluster will fail until the two passwords match.</p></li>
+<li><p>Get the list of host IDs for the host in the cluster where you are changing
+the password. You will need to access the database to determine these host
+IDs. For each hostname “h” (or vSphere cluster) that you are changing the
+password for, execute:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">select</span> <span class="nb">id</span> <span class="kn">from</span> <span class="nn">cloud.host</span> <span class="n">where</span> <span class="n">name</span> <span class="n">like</span> <span class="s1">&#39;</span><span class="si">%h%</span><span class="s1">&#39;</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+<li><p>Update the passwords for the host in the database. In this example, we
+change the passwords for hosts with IDs 5, 10, and 12 to “password”.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="n">update</span> <span class="n">cloud</span><span class="o">.</span><span class="n">host</span> <span class="nb">set</span> <span class="n">password</span><span class="o">=</span><span class="s1">&#39;password&#39;</span> <span class="n">where</span> <span class="nb">id</span><span class="o">=</span><span class="mi">5</span> <span class="ow">or</span> <span class="nb">id</span><span class="o">=</span><span class="mi">10</span> <span class="ow">or</span> <span class="nb">id</span><span class="o">=</span><span class="mi">12</span><span class="p">;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</div>
+<div class="section" id="overprovisioning-and-service-offering-limits">
+<h2>Overprovisioning and Service Offering Limits</h2>
+<p>CPU and memory (RAM) over-provisioning factors can be set for each cluster to
+change the number of VMs that can run on each host in the cluster. This helps
+optimize the use of resources. By increasing the over-provisioning ratio, more
+resource capacity will be used. If the ratio is set to 1, no over-provisioning
+is done.</p>
+<p>The administrator can also set global default over-provisioning ratios in the
+cpu.overprovisioning.factor and mem.overprovisioning.factor global
+configuration variables. The default value of these variables is 1:
+over-provisioning is turned off by default.
+Over-provisioning ratios are dynamically substituted in CloudStack’s capacity
+calculations. For example:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">Capacity</span> <span class="o">=</span> <span class="mi">2</span> <span class="n">GB</span>
+<span class="n">Over</span><span class="o">-</span><span class="n">provisioning</span> <span class="n">factor</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">Capacity</span> <span class="n">after</span> <span class="n">over</span><span class="o">-</span><span class="n">provisioning</span> <span class="o">=</span> <span class="mi">4</span> <span class="n">GB</span>
+<span class="n">With</span> <span class="n">this</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">suppose</span> <span class="n">you</span> <span class="n">deploy</span> <span class="mi">3</span> <span class="n">VMs</span> <span class="n">of</span> <span class="mi">1</span> <span class="n">GB</span> <span class="n">each</span><span class="p">:</span>
+<span class="n">Used</span> <span class="o">=</span> <span class="mi">3</span> <span class="n">GB</span>
+<span class="n">Free</span> <span class="o">=</span> <span class="mi">1</span> <span class="n">GB</span>
+</pre></div>
+</div>
+<p>The administrator can specify a memory over-provisioning ratio, and can
+specify both CPU and memory over-provisioning ratios on a per-cluster basis.</p>
+<p>In any given cloud, the optimum number of VMs for each host is affected by
+such things as the hypervisor, storage, and hardware configuration. These may
+be different for each cluster in the same cloud. A single global
+over-provisioning setting can not provide the best utilization for all the
+different clusters in the cloud. It has to be set for the lowest common
+denominator. The per-cluster setting provides a finer granularity for better
+utilization of resources, no matter where the CloudStack placement algorithm
+decides to place a VM.</p>
+<p>The overprovisioning settings can be used along with dedicated resources
+(assigning a specific cluster to an account) to effectively offer different
+levels of service to different accounts. For example, an account paying for a
+more expensive level of service could be assigned to a dedicated cluster with
+an over-provisioning ratio of 1, and a lower-paying account to a cluster with
+a ratio of 2.</p>
+<p>When a new host is added to a cluster, CloudStack will assume the host has the
+capability to perform the CPU and RAM over-provisioning which is configured
+for that cluster. It is up to the administrator to be sure the host is
+actually suitable for the level of over-provisioning which has been set.</p>
+<div class="section" id="limitations-on-over-provisioning-in-kvm-and-xenserver">
+<h3>Limitations on over-provisioning in KVM and XenServer</h3>
+<p>In XenServer, due to a constraint of this hypervisor, you can not use an
+over-provisioning factor greater than 4.</p>
+<p>KVM can not manage memory allocation to VMs dynamically. CloudStack sets the
+minimum and maximum amount of memory that a VM can use. The hypervisor adjusts
+the memory within the set limits based on the memory contention.</p>
+</div>
+<div class="section" id="requirements-for-over-provisioning">
+<h3>Requirements for Over-Provisioning</h3>
+<p>Several prerequisites are required in order for over-provisioning to function
+properly. The feature is dependent on the OS type, hypervisor capabilities,
+and certain scripts. It is the administrator’s responsibility to ensure that
+these requirements are met.</p>
+<div class="section" id="balloon-driver">
+<h4>Balloon Driver</h4>
+<p>All VMs should have a balloon driver installed in them. The hypervisor
+communicates with the balloon driver to free up and make the memory available
+to a VM.</p>
+<div class="section" id="xenserver">
+<h5>XenServer</h5>
+<p>The balloon driver can be found as a part of xen pv or PVHVM drivers. The xen
+pvhvm drivers are included in upstream linux kernels 2.6.36+.</p>
+</div>
+<div class="section" id="vmware">
+<h5>VMware</h5>
+<p>The balloon driver can be found as a part of the VMware tools. All the VMs
+that are deployed in a over-provisioned cluster should have the VMware tools
+installed.</p>
+</div>
+<div class="section" id="kvm">
+<h5>KVM</h5>
+<p>All VMs are required to support the virtio drivers. These drivers are
+installed in all Linux kernel versions 2.6.25 and greater. The administrator
+must set CONFIG_VIRTIO_BALLOON=y in the virtio configuration.</p>
+</div>
+</div>
+<div class="section" id="hypervisor-capabilities">
+<h4>Hypervisor capabilities</h4>
+<p>The hypervisor must be capable of using the memory ballooning.</p>
+<div class="section" id="id1">
+<h5>XenServer</h5>
+<p>The DMC (Dynamic Memory Control) capability of the hypervisor should be
+enabled. Only XenServer Advanced and above versions have this feature.</p>
+</div>
+<div class="section" id="vmware-kvm">
+<h5>VMware, KVM</h5>
+<p>Memory ballooning is supported by default.</p>
+</div>
+</div>
+</div>
+<div class="section" id="setting-over-provisioning-rations">
+<h3>Setting Over-Provisioning Rations</h3>
+<p>There are two ways the root admin can set CPU and RAM over-provisioning ratios.
+First, the global configuration settings cpu.overprovisioning.factor and
+mem.overprovisioning.factor will be applied when a new cluster is created.
+Later, the ratios can be modified for an existing cluster.</p>
+<p>Only VMs deployed after the change are affected by the new setting. If you
+want VMs deployed before the change to adopt the new over-provisioning ratio,
+you must stop and restart the VMs. When this is done, CloudStack recalculates
+or scales the used and reserved capacities based on the new over-provisioning
+ratios, to ensure that CloudStack is correctly tracking the amount of free
+capacity.</p>
+<p>To change the over-provisioning ratios for an existing cluster:</p>
+<ol class="arabic simple">
+<li><p>Log in as administrator to the CloudStack UI.</p></li>
+<li><p>In the left navigation bar, click Infrastructure.</p></li>
+<li><p>Under Clusters, click View All.</p></li>
+<li><p>Select the cluster you want to work with, and click the Edit button.</p></li>
+<li><p>Fill in your desired over-provisioning multipliers in the fields CPU
+overcommit ratio and RAM overcommit ratio. The value which is intially
+shown in these fields is the default value inherited from the global
+configuration settings.</p></li>
+</ol>
+</div>
+<div class="section" id="service-offering-limits-and-over-provisioning">
+<h3>Service Offering Limits and Over-Provisioning</h3>
+<p>Service offering limits (e.g. 1 GHz, 1 core) are strictly enforced for core
+count. For example, a guest with a service offering of one core will have only
+one core available to it regardless of other activity on the Host.</p>
+<p>Service offering limits for gigahertz are enforced only in the presence of
+contention for CPU resources. For example, suppose that a guest was created
+with a service offering of 1 GHz on a Host that has 2 GHz cores, and that
+guest is the only guest running on the Host. The guest will have the full
+2 GHz available to it. When multiple guests are attempting to use the CPU a
+weighting factor is used to schedule CPU resources. The weight is based on the
+clock speed in the service offering. Guests receive a CPU allocation that is
+proportionate to the GHz in the service offering. For example, a guest created
+from a 2 GHz service offering will receive twice the CPU allocation as a guest
+created from a 1 GHz service offering. CloudStack does not perform memory
+over-provisioning.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  </body>
+</html>

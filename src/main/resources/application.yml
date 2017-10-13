@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: localdev
+msTranslator:
+  client:
+    subscriptionKey: dummy
+  language:
+    source: en
+    destination: ja
