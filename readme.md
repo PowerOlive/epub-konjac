@@ -1,4 +1,6 @@
-# epub-konjac
+# epub-konjac 
+
+[![Build Status](https://travis-ci.org/ynojima/epub-konjac.svg?branch=master)](https://travis-ci.org/ynojima/epub-konjac)
 
 epub-konjac is an utility to translate epub books. Since Microsoft Translation API is used, valid subscription key is required.
 
