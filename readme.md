@@ -12,7 +12,7 @@ epub-konjac is an utility to translate epub books. Since Microsoft Translation A
 
 ## Configuration
 
-place application.yml in the same directory of epub.konjac.jar
+place application.yml in the same directory of epub-konjac.jar
 
 #### application.yml
 
