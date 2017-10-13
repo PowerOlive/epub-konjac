@@ -6,11 +6,27 @@
 
     <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}/}epub-konjac.log}"/>
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+<!--
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
-    <root level="INFO">
-        <appender-ref ref="FILE" />
-    </root>
-    <root level="WARN">
-        <appender-ref ref="CONSOLE" />
-    </root>
-</configuration>
+-->
+
+    <!-- Application Loggers -->
+    <logger name="net.sharplab.epub.konjac">
+        <level value="info" />
+    </logger>
+
+    <!-- 3rd party Loggers -->
+    <logger name="org.springframework">
+        <level value="warn" />
+    </logger>
+
+    <!--
+        <root level="INFO">
+            <appender-ref ref="FILE" />
+        </root>
+-->
+        <root level="WARN">
+            <appender-ref ref="CONSOLE" />
+        </root>
+
+    </configuration>
