@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * CommandLineRunner for epub-konjac
@@ -100,6 +102,6 @@ public class EpubKonjacCommandLineRunner implements CommandLineRunner {
         else {
             dstFileName = srcFileName.substring(0, srcFileName.lastIndexOf(".")) + "." + dstLang + srcFileName.substring(srcFileName.lastIndexOf("."), srcFileName.length());
         }
-        return new File(dstFileName);
+        return new File(src.getParent(), dstFileName);
     }
 }

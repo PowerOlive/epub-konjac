@@ -25,6 +25,7 @@ public class EpubKonjacCommandLineRunnerTest {
         File src = temporaryFolder.newFile("FileNameWithExtension.epub");
         File dst = epubKonjacCommandLineRunner.createDstFileFromSrcFile(src, "ja");
         assertThat(dst.getName()).isEqualTo("FileNameWithExtension.ja.epub");
+        assertThat(dst.getParent()).isEqualTo(src.getParent());
     }
 
     @Test
@@ -32,6 +33,7 @@ public class EpubKonjacCommandLineRunnerTest {
         File src = temporaryFolder.newFile("FileNameWithoutExtension");
         File dst = epubKonjacCommandLineRunner.createDstFileFromSrcFile(src, "ja");
         assertThat(dst.getName()).isEqualTo("FileNameWithoutExtension.ja");
+        assertThat(dst.getParent()).isEqualTo(src.getParent());
     }
 
     @Test
@@ -39,5 +41,6 @@ public class EpubKonjacCommandLineRunnerTest {
         File src = temporaryFolder.newFile("FileName.With.Period.epub");
         File dst = epubKonjacCommandLineRunner.createDstFileFromSrcFile(src, "ja");
         assertThat(dst.getName()).isEqualTo("FileName.With.Period.ja.epub");
+        assertThat(dst.getParent()).isEqualTo(src.getParent());
     }
 }
