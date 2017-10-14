@@ -28,6 +28,6 @@ msTranslator:
 ## Execution
 
 ```
-java -jar epub-konjac.jar --src=<path to source epub file> [--dst=<path to destination epub file>] \
-[--srcLang=<source language>] [--dstLang=<destination language>]
+java -jar epub-konjac.jar --src <path to source epub file> [--dst <path to destination epub file>] \
+[--srcLang <source language>] [--dstLang <destination language>]
 ```
