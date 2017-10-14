@@ -6,7 +6,7 @@ import net.sharplab.epub.konjac.domain.xml.TranslateArrayRequest;
 import net.sharplab.epub.konjac.domain.xml.TranslateArrayResponse;
 
 /**
- * Created by ynojima on 2017/04/23.
+ * RestRepository for Microsoft Translation API
  */
 public interface MSTranslatorRestRepository {
 

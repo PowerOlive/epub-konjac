@@ -1,11 +1,11 @@
 package net.sharplab.epub.konjac.domain.model;
 
-import lombok.Data;
+import lombok.Getter;
 
 /**
- * Created by ynojima on 2017/04/22.
+ * Access Token
  */
-@Data
+@Getter
 public class AccessToken {
     private String value;
 
@@ -13,7 +13,4 @@ public class AccessToken {
         this.value = value;
     }
 
-    public AccessToken(){
-
-    }
 }

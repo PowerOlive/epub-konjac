@@ -1,5 +1,6 @@
 package net.sharplab.epub.konjac.app.cli;
 
+import net.sharplab.epub.konjac.domain.service.EPubFileService;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -7,6 +8,7 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test for EpubKonjacShell
@@ -14,9 +16,9 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 public class EpubKonjacCommandLineRunnerTest {
 
     @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private EpubKonjacCommandLineRunner epubKonjacCommandLineRunner = new EpubKonjacCommandLineRunner();
+    private final EpubKonjacCommandLineRunner epubKonjacCommandLineRunner = new EpubKonjacCommandLineRunner(mock(EPubFileService.class));
 
     @Test
     public void createDstFileFromSrcFile_with_period_including_file_test() throws Exception{

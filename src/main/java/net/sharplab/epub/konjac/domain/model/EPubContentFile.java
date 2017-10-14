@@ -1,8 +1,6 @@
 package net.sharplab.epub.konjac.domain.model;
 
 import lombok.Getter;
-import net.sharplab.epub.konjac.domain.KonjacMessageSource;
-import org.springframework.context.support.MessageSourceAccessor;
 
 import java.io.*;
 
@@ -11,10 +9,8 @@ import java.io.*;
  */
 public class EPubContentFile {
 
-    protected MessageSourceAccessor messages = KonjacMessageSource.getAccessor();
-
     @Getter
-    protected String name;
+    protected final String name;
     @Getter
     protected byte[] data;
 

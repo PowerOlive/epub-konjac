@@ -24,13 +24,17 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class EPubFileServiceImpl implements EPubFileService {
 
-    Logger logger = LoggerFactory.getLogger(EPubFileServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(EPubFileServiceImpl.class);
+
+    private final TranslatorService translatorService;
+
+    private final List<EPubContentFileProvider> ePubContentFileProviders;
 
     @Autowired
-    private TranslatorService translatorService;
-
-    @Autowired
-    private List<EPubContentFileProvider> ePubContentFileProviders;
+    public EPubFileServiceImpl(TranslatorService translatorService, List<EPubContentFileProvider> ePubContentFileProviders) {
+        this.translatorService = translatorService;
+        this.ePubContentFileProviders = ePubContentFileProviders;
+    }
 
     @Override
     public void translateEPubFile(EPubFile source, OutputStream outputStream, TranslatorOption translatorOption){

@@ -5,7 +5,6 @@ import com.beust.jcommander.ParameterException;
 import net.sharplab.epub.konjac.domain.model.EPubFile;
 import net.sharplab.epub.konjac.domain.repository.TranslatorOption;
 import net.sharplab.epub.konjac.domain.service.EPubFileService;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -22,8 +21,7 @@ import java.io.UncheckedIOException;
 @Configuration
 public class EpubKonjacCommandLineRunner implements CommandLineRunner {
 
-    @Autowired
-    private EPubFileService ePubFileService;
+    private final EPubFileService ePubFileService;
 
     @Value("${msTranslator.language.source}")
     private String defaultSrcLang;
@@ -31,7 +29,10 @@ public class EpubKonjacCommandLineRunner implements CommandLineRunner {
     @Value("${msTranslator.language.destination}")
     private String defaultDstLang;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    public EpubKonjacCommandLineRunner(EPubFileService ePubFileService) {
+        this.ePubFileService = ePubFileService;
+    }
 
     /**
      * entry point of {@link EpubKonjacCommandLineRunner}

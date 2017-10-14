@@ -15,7 +15,7 @@ import java.util.zip.ZipInputStream;
 public class EPubFile {
 
     @Getter
-    private File file;
+    private final File file;
 
     public EPubFile(File file){
         this.file = file;
