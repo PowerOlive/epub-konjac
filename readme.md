@@ -4,7 +4,7 @@
 
 epub-konjac is an utility to translate epub books. Since Microsoft Translation API is used, valid subscription key is required.
 
-## Building
+## Build
 
 ```
 ./gradlew bootJar
@@ -12,7 +12,7 @@ epub-konjac is an utility to translate epub books. Since Microsoft Translation A
 
 ## Configuration
 
-place application.yml in the same directory of epub-konjac.jar
+place application.yml in a /config subdirectory of the current directory.
 
 #### application.yml
 
@@ -25,7 +25,7 @@ msTranslator:
     destination: ja   # default destination language
 ```
 
-## Running
+## Execution
 
 ```
 java -jar epub-konjac.jar --src=<path to source epub file> [--dst=<path to destination epub file>] \

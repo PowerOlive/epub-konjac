@@ -25,4 +25,4 @@ nbdist/
 .nb-gradle/
 
 ### application specific ###
-src/main/resources/application-localdev.yml
+config/application.yml
