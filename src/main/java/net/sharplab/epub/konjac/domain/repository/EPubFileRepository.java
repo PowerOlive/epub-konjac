@@ -1,18 +1,13 @@
 package net.sharplab.epub.konjac.domain.repository;
 
 import net.sharplab.epub.konjac.domain.model.EPubFile;
-import org.springframework.stereotype.Repository;
 
 import java.io.File;
 
 /**
- * Created by ynojima on 2017/04/23.
+ * Created by ynojima on 2017/10/14.
  */
-@Repository
-public class EPubFileRepository {
+public interface EPubFileRepository {
 
-    public EPubFile read(File file){
-        throw new IllegalStateException();
-    }
-
+    EPubFile read(File file);
 }

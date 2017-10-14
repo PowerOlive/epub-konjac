@@ -2,7 +2,6 @@ package net.sharplab.epub.konjac.app.cli;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import net.sharplab.epub.konjac.domain.model.EPubFile;
 import net.sharplab.epub.konjac.domain.repository.TranslatorOption;
 import net.sharplab.epub.konjac.domain.service.EPubFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,7 @@ public class EpubKonjacCommandLineRunner implements CommandLineRunner {
      */
     void translate(CliArgs cliArgs){
         try (FileOutputStream fileOutputStream = new FileOutputStream(cliArgs.getDst())){
-            ePubFileService.translateEPubFile(new EPubFile(cliArgs.getSrc()), fileOutputStream, new TranslatorOption(cliArgs.getSrcLang(), cliArgs.getDstLang()));
+            ePubFileService.translateEPubFile(cliArgs.getSrc(), fileOutputStream, new TranslatorOption(cliArgs.getSrcLang(), cliArgs.getDstLang()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

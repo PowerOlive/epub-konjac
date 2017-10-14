@@ -1,9 +1,9 @@
 package net.sharplab.epub.konjac.domain.service;
 
 
-import net.sharplab.epub.konjac.domain.model.EPubFile;
 import net.sharplab.epub.konjac.domain.repository.TranslatorOption;
 
+import java.io.File;
 import java.io.OutputStream;
 
 /**
@@ -11,6 +11,6 @@ import java.io.OutputStream;
  */
 public interface EPubFileService {
 
-    void translateEPubFile(EPubFile source, OutputStream outputStream, TranslatorOption translatorOption);
+    void translateEPubFile(File source, OutputStream outputStream, TranslatorOption translatorOption);
 
 }

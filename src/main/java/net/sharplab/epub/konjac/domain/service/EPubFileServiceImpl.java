@@ -4,12 +4,14 @@ import net.sharplab.epub.konjac.domain.model.EPubChapter;
 import net.sharplab.epub.konjac.domain.model.EPubContentFile;
 import net.sharplab.epub.konjac.domain.model.EPubFile;
 import net.sharplab.epub.konjac.domain.provider.epub.EPubContentFileProvider;
+import net.sharplab.epub.konjac.domain.repository.EPubFileRepository;
 import net.sharplab.epub.konjac.domain.repository.TranslatorOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -28,17 +30,21 @@ public class EPubFileServiceImpl implements EPubFileService {
 
     private final TranslatorService translatorService;
 
+    private final EPubFileRepository ePubFileRepository;
+
     private final List<EPubContentFileProvider> ePubContentFileProviders;
 
     @Autowired
-    public EPubFileServiceImpl(TranslatorService translatorService, List<EPubContentFileProvider> ePubContentFileProviders) {
+    public EPubFileServiceImpl(TranslatorService translatorService, EPubFileRepository ePubFileRepository, List<EPubContentFileProvider> ePubContentFileProviders) {
         this.translatorService = translatorService;
+        this.ePubFileRepository = ePubFileRepository;
         this.ePubContentFileProviders = ePubContentFileProviders;
     }
 
     @Override
-    public void translateEPubFile(EPubFile source, OutputStream outputStream, TranslatorOption translatorOption){
-        List<EPubContentFile> contentFiles = source.getContentFiles(ePubContentFileProviders);
+    public void translateEPubFile(File source, OutputStream outputStream, TranslatorOption translatorOption){
+        EPubFile ePubFile = ePubFileRepository.read(source);
+        List<EPubContentFile> contentFiles = ePubFile.getContentFiles(ePubContentFileProviders);
 
         contentFiles = contentFiles.stream().map( contentFile -> {
             if(contentFile instanceof EPubChapter){
