@@ -4,9 +4,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Created by ynojima on 2017/09/29.
+ * Application Configuration
  */
 @Configuration
-@ComponentScan("net.sharplab.epub.konjac.app.shell")
+@ComponentScan("net.sharplab.epub.konjac.app.cli")
 public class AppConfig {
 }

@@ -9,7 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -19,7 +19,7 @@ import java.io.UncheckedIOException;
 /**
  * CommandLineRunner for epub-konjac
  */
-@SpringBootApplication
+@Configuration
 public class EpubKonjacCommandLineRunner implements CommandLineRunner {
 
     @Autowired
