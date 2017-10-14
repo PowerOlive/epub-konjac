@@ -54,11 +54,11 @@ public class MSTranslatorRestRepositoryImpl implements MSTranslatorRestRepositor
             return cachedAccessToken;
         }
 
-        LinkedMultiValueMap headers = new LinkedMultiValueMap();
+        LinkedMultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("Ocp-Apim-Subscription-Key", subscriptionKey);
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(
                 TOKEN_ENDPOINT,
-                new HttpEntity<>(null, headers),
+                new HttpEntity<>("", headers),
                 String.class);
         AccessToken accessToken = new AccessToken(responseEntity.getBody());
         cachedAccessToken = accessToken;
