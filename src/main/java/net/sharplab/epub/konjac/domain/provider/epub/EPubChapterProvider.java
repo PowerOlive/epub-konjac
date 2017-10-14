@@ -1,7 +1,6 @@
 package net.sharplab.epub.konjac.domain.provider.epub;
 
 import net.sharplab.epub.konjac.domain.model.EPubChapter;
-import net.sharplab.epub.konjac.domain.model.EPubContentFile;
 import net.sharplab.epub.konjac.domain.model.FileEntry;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;

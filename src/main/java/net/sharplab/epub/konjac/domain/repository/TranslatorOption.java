@@ -2,8 +2,6 @@ package net.sharplab.epub.konjac.domain.repository;
 
 import lombok.Data;
 
-import java.io.File;
-
 /**
  * TranslatorOption
  */

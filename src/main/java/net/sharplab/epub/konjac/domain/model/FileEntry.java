@@ -2,7 +2,6 @@ package net.sharplab.epub.konjac.domain.model;
 
 import lombok.Data;
 import net.sharplab.epub.konjac.domain.exception.ContentFileProviderNotFoundException;
-import net.sharplab.epub.konjac.domain.exception.EPubContentHandlingException;
 import net.sharplab.epub.konjac.domain.provider.epub.EPubContentFileProvider;
 
 import java.util.List;

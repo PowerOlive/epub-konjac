@@ -4,8 +4,6 @@ import net.sharplab.epub.konjac.domain.model.AccessToken;
 import net.sharplab.epub.konjac.domain.xml.ArrayOfTranslateArrayResponse;
 import net.sharplab.epub.konjac.domain.xml.TranslateArrayRequest;
 import net.sharplab.epub.konjac.domain.xml.TranslateArrayResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cache.annotation.Cacheable;
@@ -36,7 +34,7 @@ public class MSTranslatorRestRepositoryImpl implements MSTranslatorRestRepositor
 
     private static final String TRANSLATOR_ENDPOINT = "http://api.microsofttranslator.com/V2/Http.svc";
 
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
     @Value("${msTranslator.client.subscriptionKey}")
     String subscriptionKey;

@@ -1,7 +1,6 @@
 package net.sharplab.epub.konjac.domain.xml;
 
 import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
-import net.sharplab.epub.konjac.domain.exception.EPubContentHandlingException;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
@@ -43,7 +42,9 @@ public class XmlUtilsTest {
         Document document = DocumentBuilderFactoryImpl.newInstance().newDocumentBuilder().newDocument();
 
         //When
-        DocumentFragment documentFragment = XmlUtils.parseXmlStringToDocumentFragment(document, "<div>sample string</broken_tag>");
+        XmlUtils.parseXmlStringToDocumentFragment(document, "<div>sample string</broken_tag>");
+
+        //Then
 
     }
 }

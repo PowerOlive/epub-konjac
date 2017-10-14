@@ -1,9 +1,7 @@
 package net.sharplab.epub.konjac.domain.xml;
 
-import net.sharplab.epub.konjac.domain.KonjacMessageSource;
 import net.sharplab.epub.konjac.domain.model.Options;
 import net.sharplab.epub.konjac.domain.model.Text;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -16,8 +14,6 @@ import java.util.List;
  * TranslateArrayRequestクラス
  */
 public class TranslateArrayRequest implements Serializable {
-
-    protected MessageSourceAccessor messages = KonjacMessageSource.getAccessor();
 
     private static final long serialVersionUID = -243454571262060205L;
 
@@ -50,9 +46,7 @@ public class TranslateArrayRequest implements Serializable {
             }
             rootNode.appendChild(optionsElement);
             Element textsElement = doc.createElement("Texts");
-            texts.stream().forEach(text -> {
-                textsElement.appendChild(doc.createElementNS("http://schemas.microsoft.com/2003/10/Serialization/Arrays","string")).appendChild(doc.createTextNode(text.getValue()));
-            });
+            texts.forEach(text -> textsElement.appendChild(doc.createElementNS("http://schemas.microsoft.com/2003/10/Serialization/Arrays","string")).appendChild(doc.createTextNode(text.getValue())));
             rootNode.appendChild(textsElement);
             rootNode.appendChild(doc.createElement("To")).appendChild(doc.createTextNode(to));
             rootNode.appendChild(doc.createElement("MaxTranslations")).appendChild(doc.createTextNode("3"));

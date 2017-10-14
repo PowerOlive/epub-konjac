@@ -1,6 +1,5 @@
 package net.sharplab.epub.konjac.domain.service;
 
-import net.sharplab.epub.konjac.domain.KonjacMessageSource;
 import net.sharplab.epub.konjac.domain.dto.TranslateRequest;
 import net.sharplab.epub.konjac.domain.dto.TranslateRequestChunk;
 import net.sharplab.epub.konjac.domain.model.Options;
@@ -10,8 +9,6 @@ import net.sharplab.epub.konjac.domain.repository.TranslatorOption;
 import net.sharplab.epub.konjac.domain.xml.TranslateArrayRequest;
 import net.sharplab.epub.konjac.domain.xml.TranslateArrayResponse;
 import net.sharplab.epub.konjac.domain.xml.XmlUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.*;
 
@@ -41,8 +38,6 @@ public class TranslatorServiceImpl implements TranslatorService{
      * 翻訳除外要素のリスト
      */
     private final static List<String> EXCLUDED_ELEMENT_NAMES = Collections.singletonList("pre");
-
-    protected MessageSourceAccessor messages = KonjacMessageSource.getAccessor();
 
     private MSTranslatorRestRepository msTranslatorRestRepository;
 

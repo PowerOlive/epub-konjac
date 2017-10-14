@@ -93,7 +93,7 @@ public class EpubKonjacCommandLineRunner implements CommandLineRunner {
     File createDstFileFromSrcFile(File src, String dstLang){
         String srcFileName = src.getName();
         String dstFileName;
-        if(srcFileName.indexOf(".") == -1) {
+        if(!srcFileName.contains(".")) {
             dstFileName = srcFileName + "." + dstLang;
         }
         else {
