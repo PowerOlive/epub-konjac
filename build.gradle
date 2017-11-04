@@ -24,10 +24,10 @@ sourceCompatibility = 1.8
 bootJar {
 	baseName = 'epub-konjac'
 	version = null
-	launchScript {
-		included = true
-	}
+	launchScript ()
 }
+
+
 
 repositories {
 	mavenCentral()
