@@ -1,10 +1,11 @@
 package net.sharplab.epub.konjac.domain.xml;
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -15,7 +16,8 @@ public class XmlUtilsTest {
 
     @Test
     public void parseXmlStringToDocumentFragment_test1() throws Exception{
-        Document document = DocumentBuilderFactoryImpl.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        Document document = documentBuilderFactory.newDocumentBuilder().newDocument();
 
         //When
         DocumentFragment documentFragment = XmlUtils.parseXmlStringToDocumentFragment(document, "sample string");
@@ -27,7 +29,8 @@ public class XmlUtilsTest {
 
     @Test
     public void parseXmlStringToDocumentFragment_test2() throws Exception{
-        Document document = DocumentBuilderFactoryImpl.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        Document document = documentBuilderFactory.newDocumentBuilder().newDocument();
 
         //When
         DocumentFragment documentFragment = XmlUtils.parseXmlStringToDocumentFragment(document, "<div>sample string</div>");
@@ -39,7 +42,8 @@ public class XmlUtilsTest {
 
     @Test
     public void parseXmlStringToDocumentFragment_broken_tag_will_not_raise_exception_test() throws Exception{
-        Document document = DocumentBuilderFactoryImpl.newInstance().newDocumentBuilder().newDocument();
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        Document document = documentBuilderFactory.newDocumentBuilder().newDocument();
 
         //When
         XmlUtils.parseXmlStringToDocumentFragment(document, "<div>sample string</broken_tag>");
