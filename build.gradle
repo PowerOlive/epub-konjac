@@ -40,8 +40,10 @@ repositories {
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-autoconfigure')
+	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-cache')
 	compile('org.springframework.boot:spring-boot-starter-validation')
+	compile('org.springframework.boot:spring-boot-starter-data-redis')
 
 
 	//compile("org.modelmapper:modelmapper")

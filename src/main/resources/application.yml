@@ -4,3 +4,10 @@ msTranslator:
   language:
     source: en
     destination: ja
+spring:
+  cache:
+    type: simple
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379

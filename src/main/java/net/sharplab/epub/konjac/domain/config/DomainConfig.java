@@ -12,11 +12,10 @@ import org.springframework.context.annotation.Configuration;
  * Spring ApplicationContext Configuration for domain
  */
 @Configuration
-@ComponentScans({
-        @ComponentScan("net.sharplab.epub.konjac.domain.service"),
-        @ComponentScan("net.sharplab.epub.konjac.domain.repository"),
-        @ComponentScan("net.sharplab.epub.konjac.domain.provider")
-})
+@ComponentScan("net.sharplab.epub.konjac.domain.config")
+@ComponentScan("net.sharplab.epub.konjac.domain.service")
+@ComponentScan("net.sharplab.epub.konjac.domain.repository")
+@ComponentScan("net.sharplab.epub.konjac.domain.provider")
 public class DomainConfig {
 
     @Bean

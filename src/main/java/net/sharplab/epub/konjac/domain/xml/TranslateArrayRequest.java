@@ -56,4 +56,9 @@ public class TranslateArrayRequest implements Serializable {
             throw new IllegalStateException(ex);
         }
     }
+
+    @Override
+    public String toString(){
+        return toXmlString();
+    }
 }
