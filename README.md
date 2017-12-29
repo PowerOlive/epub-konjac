@@ -26,6 +26,14 @@ msTranslator:
   language:
     source: en        # default source language
     destination: ja   # default destination language
+spring:
+  cache:
+    type: simple # 'simple' (in memory) or 'redis'
+  data:
+    redis:
+      host: 127.0.0.1 # redis server host
+      port: 6379      # redis server port
+
 ```
 
 ## Execution
