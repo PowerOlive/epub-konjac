@@ -36,17 +36,15 @@ public class XmlUtils {
     }
 
     public static Document load(File testFile) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        DocumentBuilder documentBuilder = getDocumentBuilder();
         return documentBuilder.parse(testFile);
     }
 
     public static Document parseXmlStringToDocument(String xmlString) {
         InputSource inputSource = new InputSource(new StringReader(xmlString));
 
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder builder = factory.newDocumentBuilder();
+            DocumentBuilder builder = getDocumentBuilder();
             return builder.parse(inputSource);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
@@ -56,7 +54,6 @@ public class XmlUtils {
             throw new EPubContentHandlingException(e);
         }
     }
-
 
     /**
      * Parse xml string and return as {@link DocumentFragment}.
@@ -75,5 +72,18 @@ public class XmlUtils {
             throw new UncheckedIOException(e);
         }
     }
+
+    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        documentBuilderFactory.setNamespaceAware(false);
+        documentBuilderFactory.setValidating(false);
+        documentBuilderFactory.setFeature("http://xml.org/sax/features/namespaces", false);
+        documentBuilderFactory.setFeature("http://xml.org/sax/features/validation", false);
+        documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+        documentBuilderFactory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        return documentBuilderFactory.newDocumentBuilder();
+    }
+
+
 
 }
